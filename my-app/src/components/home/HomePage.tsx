@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import http from "../../http_common";
 import { IProductItem } from "./types";
 
+//Запит на сервер, який повертає список продуктів
 const HomePage = () =>{
     const [list, setList] = useState<Array<IProductItem>>([]);
     useEffect(()=>{
@@ -11,7 +12,7 @@ const HomePage = () =>{
             setList(resp.data);
         });
     }, []);
-    
+    //map - foreach, але на TypeScript
   const data = list.map(product=> (
     <tr key={product.id}>
         <td>{product.id}</td>

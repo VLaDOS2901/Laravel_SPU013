@@ -15,7 +15,10 @@ class ProductController extends Controller
      */
     public function index()
     {
+        //Повертаємо весь список продуктів
+        //Отримує всі продукти
         $prodcuts = Product::all();
+        //Переводить всі продукти у вигляді Json
         return response()->json($prodcuts,  200,
             ['Content-Type' => 'application/json;charset=UTF-8', 'Charset' => 'utf-8'],
             JSON_UNESCAPED_UNICODE);

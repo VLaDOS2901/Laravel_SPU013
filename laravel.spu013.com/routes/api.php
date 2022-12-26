@@ -18,5 +18,5 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
+//Маршрут до контроллера та його класу
 Route::get('/products', [ProductController::class, 'index']);
