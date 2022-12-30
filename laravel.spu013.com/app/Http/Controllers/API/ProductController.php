@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -17,14 +18,35 @@ class ProductController extends Controller
     {
         //Повертаємо весь список продуктів
         //Отримує всі продукти
-        $prodcuts = Product::all();
+        $products = Product::all();
         //Переводить всі продукти у вигляді Json
-        return response()->json($prodcuts,  200,
+        return response()->json($products,  200,
             ['Content-Type' => 'application/json;charset=UTF-8', 'Charset' => 'utf-8'],
             JSON_UNESCAPED_UNICODE);
         //
     }
+    public function delete($id)
+    {
+//        return "$id was deleted";
+        $product = Product::findOrFail($id);
+        if($product)
+            $product->delete();
+        return response()->json(null);
+        //
+    }
 
+    public function post($n, $d)
+    {
+        $name = $n;
+        $detail = $d;
+        $created_at = date("Y-m-d H:i:s");
+        $products = new Product;
+        $products->name = $name;
+        $products->detail = $detail;
+        $products->created_at = $created_at;
+        $products->save();
+        return "Product was added $products";
+    }
     /**
      * Show the form for creating a new resource.
      *
