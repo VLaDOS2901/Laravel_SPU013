@@ -7,18 +7,55 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @OA\Info(
+ *      version="1.0.0",
+ *      title="Api Project",
+ *      description="Demo my Project ",
+ *      @OA\Contact(
+ *          email="admin@gmail.com"
+ *      ),
+ *     @OA\License(
+ *         name="Apache 2.0",
+ *         url="https://www.apache.org/licenses/LICENSE-2.0.html"
+ *     )
+ * )
+ *
+ */
+
 class ProductController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     tags={"Product"},
+     *     path="/api/products",
+     *     @OA\Parameter(
+     *      name="page",
+     *      in="query",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string"
+     *      )
+     *   ),
+     *     @OA\Parameter(
+     *      name="name",
+     *      in="query",
+     *      required=false,
+     *      @OA\Schema(
+     *           type="string"
+     *      )
+     *   ),
+     *     @OA\Response(response="200", description="List Products.")
+     * )
      */
-    public function index()
+    public function index(Request $request)
     {
+        $input = $request->all(); //отримуємо усі данні з запиту на сервер
+        $name = $input["name"]??"";
+        $products = Product::where("name","LIKE","%$name%")->paginate(2);
         //Повертаємо весь список продуктів
         //Отримує всі продукти
-        $products = Product::all();
+
         //Переводить всі продукти у вигляді Json
         return response()->json($products,  200,
             ['Content-Type' => 'application/json;charset=UTF-8', 'Charset' => 'utf-8'],
@@ -58,14 +95,50 @@ class ProductController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     ** path="/api/products",
+     *   tags={"Product"},
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+     *
+     * @OA\RequestBody(
+     *    required=true,
+     *    description="Pass user credentials",
+     *    @OA\JsonContent(
+     *       required={"name","detail"},
+     *       @OA\Property(property="name", type="string"),
+     *       @OA\Property(property="detail", type="string"),
+     *    ),
+     * ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      )
+     *)
+     **/
     public function store(Request $request)
     {
-        //
+        $input = $request->all();
+        $product = Product::create($input);
+        return response()->json([
+            "success" => true,
+            "message" => "Product created",
+            "data"=> $product
+        ]);
     }
 
     /**
