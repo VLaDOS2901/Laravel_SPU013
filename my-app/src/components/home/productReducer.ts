@@ -8,6 +8,7 @@ const initialState : IProductState = {
     total: 0
 };
 
+//Редюсери визначають, як стан програми змінюється у відповідь на екшени, надіслані в store.
 export const productReducer = (state = initialState, action: ProdutActions) : IProductState => {
     switch(action.type)
     {

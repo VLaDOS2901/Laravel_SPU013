@@ -18,7 +18,8 @@ export interface IProductState {
     total: number,
     count_page: number
 }
-
+//Action - це простий об'єкт JavaScript, який представляє корисне навантаження,
+//що відправляє дані з програми в store. Action приймає тип і опціонально корисне навантаження (type та payload).
 export enum ProductActionTypes {
     GET_PRODUCTS = "GET_PRODUCTS_ACTION" //назва дії
 }
