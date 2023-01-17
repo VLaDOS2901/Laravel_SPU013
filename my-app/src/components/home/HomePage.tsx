@@ -1,42 +1,44 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import http from "../../http_common";
 import { GetProductAction, IProductItem, IProductResponse, IProductState, ProductActionTypes } from "./types";
 
 //Запит на сервер, який повертає список продуктів
 const HomePage = () => {
     // const [list, setList] = useState<Array<IProductItem>>([]);
+    const location = useLocation();
+    let link = "";
+    if (location.state != null)
+        link = location.state;
+    console.log(link);
+
+
     const { list, total, count_page } = useSelector((state: any) => state.product as IProductState);
     const dispatch = useDispatch(); //посилає запити на систему
     useEffect(() => {
-        http.get<IProductResponse>("/api/products").then((resp) => {
-          console.log("List product server", resp);
-          const {data} = resp;
-    
-          const payload: IProductState = {
-            list: data.data,
-            count_page: data.last_page,
-            current_page: data.current_page,
-            total: data.total
-          };
-    
-          const action: GetProductAction = {
-            type: ProductActionTypes.GET_PRODUCTS,
-            payload: payload
-          };
-    
-          dispatch(action);
+        http.get<IProductResponse>("/api/products" + link).then((resp) => {
+            console.log("List product server", resp);
+            const { data } = resp;
+
+            const payload: IProductState = {
+                list: data.data,
+                count_page: data.last_page,
+                current_page: data.current_page,
+                total: data.total
+            };
+
+            const action: GetProductAction = {
+                type: ProductActionTypes.GET_PRODUCTS,
+                payload: payload
+            };
+
+            dispatch(action);
         });
-      }, []);
+    }, []);
 
     function Refresh() {
-        // http.get<Array<IProductItem>>("api/products")
-        //     .then((resp) => {
-        //         console.log("List product server", resp);
-        //         setList(resp.data);
-        //     });
     }
     const Delete = (id: number) => {
         http.delete("api/delete/" + id)
@@ -62,6 +64,36 @@ const HomePage = () => {
 
     };
 
+    function Search() {
+        const input = document.getElementById("search_name") as HTMLInputElement | null;
+        const name = input?.value; 
+        link += "&name=" + name;
+        http.get<IProductResponse>("/api/products" + link).then((resp) => {
+            console.log("List product server", resp);
+            const { data } = resp;
+
+            const payload: IProductState = {
+                list: data.data,
+                count_page: data.last_page,
+                current_page: data.current_page,
+                total: data.total
+            };
+
+            const action: GetProductAction = {
+                type: ProductActionTypes.GET_PRODUCTS,
+                payload: payload
+            };
+            dispatch(action);
+        });
+
+    }
+
+    function refreshPage() {
+        setTimeout(() => {
+            window.location.reload();
+        }, 100);
+        console.log('page to reload')
+    }
     //map - foreach, але на TypeScript
     const data = list.map(product => (
         <tr key={product.id}>
@@ -74,21 +106,32 @@ const HomePage = () => {
 
     const buttons: Array<number> = [];
     for (let i = 1; i <= count_page; i++) {
-      buttons.push(i);
+        buttons.push(i);
     }
-  
+
     const pagination = buttons.map(page => {
-      return (
-        <li key={page} className="page-item">
-          <Link to={"?page="+page} className="page-link">{page}</Link>
-        </li>
-      );
-    }); 
+        return (
+            <li key={page} className="page-item">
+                <Link to={"?page=" + page} state={"?page=" + page} onClick={refreshPage} className="page-link">{page}</Link>
+            </li>
+        );
+    });
     return (
         <>
             <h1 className="text-center">Головна сторінка</h1>
             <h4>Всього записів <strong>{total}</strong></h4>
-            <div className="mb-3">
+            <div className="row g-3 align-items-center">
+                <div className="col-auto">
+                    <label className="col-form-label">Name</label>
+                </div>
+                <div className="col-auto">
+                    <input id="search_name" type="text" className="form-control" />
+                </div>
+                <div className="col-auto">
+                    <button type="button" onClick={Search} className="btn btn-primary">Search</button>
+                </div>
+            </div>
+            {/* <div className="mb-3">
                 <label className="form-label">Назва</label>
                 <input type="text" className="form-control" id="name" />
             </div>
@@ -96,7 +139,7 @@ const HomePage = () => {
                 <label className="form-label">Опис</label>
                 <input type="text" className="form-control" id="description" />
             </div>
-            <button onClick={() => Add()} className="btn btn-primary">Додати</button>
+            <button onClick={() => Add()} className="btn btn-primary">Додати</button> */}
 
 
             <table className="table">
