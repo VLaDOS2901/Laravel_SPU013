@@ -35,6 +35,14 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "items",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {

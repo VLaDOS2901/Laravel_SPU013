@@ -7,12 +7,27 @@ import { GetProductAction, IProductItem, IProductResponse, IProductState, Produc
 
 //Запит на сервер, який повертає список продуктів
 const HomePage = () => {
-    // const [list, setList] = useState<Array<IProductItem>>([]);
     const location = useLocation();
     let link = "";
+    let items = 0;
+    if (location.state != null)
+        {
+            let lnk = location.state;
+            items = lnk.slice(-1);
+        }
+    else
+        items = 1;
+    const [query, setQuery] = useState(items);
+    const [items_count, setItems_count] = useState(query);
     if (location.state != null)
         link = location.state;
-    console.log(link);
+    else
+        link = "?page=1"
+
+    let items_string = "";
+    if (query != null)
+        items_string = "&items=" + items_count.toString();
+    console.log(link, "link");
 
 
     const { list, total, count_page } = useSelector((state: any) => state.product as IProductState);
@@ -66,7 +81,7 @@ const HomePage = () => {
 
     function Search() {
         const input = document.getElementById("search_name") as HTMLInputElement | null;
-        const name = input?.value; 
+        const name = input?.value;
         link += "&name=" + name;
         http.get<IProductResponse>("/api/products" + link).then((resp) => {
             console.log("List product server", resp);
@@ -87,7 +102,12 @@ const HomePage = () => {
         });
 
     }
-
+    function applyItems() {
+        const input = document.getElementById("items_count") as HTMLInputElement | null;
+        let count = input?.value!;
+        setItems_count(parseInt(count));
+        items_string = "&items=" + count.toString();
+    }
     function refreshPage() {
         setTimeout(() => {
             window.location.reload();
@@ -112,7 +132,7 @@ const HomePage = () => {
     const pagination = buttons.map(page => {
         return (
             <li key={page} className="page-item">
-                <Link to={"?page=" + page} state={"?page=" + page} onClick={refreshPage} className="page-link">{page}</Link>
+                <Link to={"?page=" + page + "&items=" + query} state={"?page=" + page + "&items=" + query} onClick={refreshPage} className="page-link">{page}</Link>
             </li>
         );
     });
@@ -129,6 +149,21 @@ const HomePage = () => {
                 </div>
                 <div className="col-auto">
                     <button type="button" onClick={Search} className="btn btn-primary">Search</button>
+                </div>
+            </div>
+
+            <div className="row g-3 align-items-center mt-2">
+                <div className="col-auto">
+                    <label className="col-form-label">Items on page</label>
+                </div>
+                <div className="col-auto">
+                    <input id="items_count" type="number" onChange={(e) => setQuery(parseInt(e.target.value))} className="form-control" />
+                </div>
+                <div className="col-auto">
+                    <Link to={"?page=1" + "&items=" + query} state={"?page=1" + "&items=" + query} onClick={refreshPage} className="page-link">
+                        <button type="button" className="btn btn-primary" onClick={applyItems}>Apply</button>
+                    </Link>
+
                 </div>
             </div>
             {/* <div className="mb-3">

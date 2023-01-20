@@ -45,6 +45,14 @@ class ProductController extends Controller
      *           type="string"
      *      )
      *   ),
+     *     @OA\Parameter(
+     *      name="items",
+     *      in="query",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string"
+     *      )
+     *   ),
      *     @OA\Response(response="200", description="List Products.")
      * )
      */
@@ -52,7 +60,8 @@ class ProductController extends Controller
     {
         $input = $request->all(); //отримуємо усі данні з запиту на сервер
         $name = $input["name"]??"";
-        $products = Product::where("name","LIKE","%$name%")->paginate(2);
+        $items = $input["items"]??"";
+        $products = Product::where("name","LIKE","%$name%")->paginate($items);
         //Переводить всі продукти у вигляді Json
         return response()->json($products,  200,
             ['Content-Type' => 'application/json;charset=UTF-8', 'Charset' => 'utf-8'],
